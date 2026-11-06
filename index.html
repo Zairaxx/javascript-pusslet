@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>JavaScript-pusslet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;padding:0}
+[hidden]{display:none!important}
+/* Layout: kodeditor till vänster (själva pusslet), bitlåda till höger; staplas på mobil med bitlådan klistrad nederst. */
+:root {
+  color-scheme: light;
+  --bg: #f1ece4;
+  --panel: #fbf8f3;
+  --ink: #1f1a14;
+  --muted: #6a6052;
+  --line: #d9cfc0;
+  --accent: #b4530a;
+  --accent-ink: #ffffff;
+  --code-bg: #ffffff;
+  --code-ink: #241f19;
+  --gutter-ink: #a89c8a;
+  --syn-kw: #7b3fc4;
+  --syn-str: #2b7a3d;
+  --syn-fn: #1c62b9;
+  --syn-num: #c2510c;
+  --syn-punct: #6b7587;
+  --syn-com: #9a8f7e;
+  --ok: #2b8a3e;
+  --ok-bg: #e3f4e6;
+  --bad: #c92a2a;
+  --bad-bg: #fde8e8;
+  --c-func: #1971c2;
+  --c-param: #d9480f;
+  --c-ret: #6741d9;
+  --c-cond: #0c8599;
+  --c-arrow: #b77400;
+  --c-method: #2b8a3e;
+  --c-obj: #c2255c;
+  --c-text: #5c6b80;
+  --shadow: 0 1px 0 rgba(31,26,20,.06), 0 6px 18px -8px rgba(31,26,20,.25);
+  --f-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-code: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17140f; --panel: #211c16; --ink: #efe8dd; --muted: #a99e8d; --line: #3a3229;
+    --accent: #f08a3c; --accent-ink: #1b1209; --code-bg: #120f0b; --code-ink: #e6ded2; --gutter-ink: #5c5244;
+    --syn-kw: #c49bff; --syn-str: #8fd19e; --syn-fn: #7cb7ff; --syn-num: #ffa86b; --syn-punct: #8792a5; --syn-com: #6f6556;
+    --ok: #69db7c; --ok-bg: #16301f; --bad: #ff8787; --bad-bg: #3a1a1d;
+    --c-func: #5fa8f0; --c-param: #ff8f5a; --c-ret: #a48bff; --c-cond: #3fc8d9;
+    --c-arrow: #ffc34d; --c-method: #69db7c; --c-obj: #f06595; --c-text: #93a1b5;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 8px 20px -10px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+/* Inga ligaturer: === >= => ska visas som separata tecken, precis som eleverna skriver dem */
+pre, code, .slot, .file, .cl, .pz-btn, .course, .label, .lesson { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.app { max-width: 1200px; margin: 0 auto; padding-block: 20px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 18px; }
+
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 24px; }
+.brand h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(28px, 4vw, 40px); line-height: 1; margin: 0; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+.brand h1 svg { width: 1em; height: 1em; flex: none; }
+.brand p { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+.course { font-family: var(--f-code); font-size: 12px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+
+.levels { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.lvl { flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; text-align: left; min-width: 150px; }
+.lvl:hover { border-color: var(--accent); }
+.lvl[aria-current="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.lvl .n { font-family: var(--f-code); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .8; }
+.lvl .t { font-weight: 700; font-size: 14px; }
+.lvl .s { font-size: 12px; letter-spacing: 1px; }
+
+.intro { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; }
+.intro h2 { font-family: var(--f-display); font-weight: 600; font-size: 22px; margin: 0; text-wrap: balance; }
+.intro .lesson { font-family: var(--f-code); font-size: 12px; color: var(--accent); }
+.intro p { margin: 0; color: var(--muted); flex-basis: 100%; max-width: 75ch; }
+
+.board { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 880px) { .board { grid-template-columns: minmax(0, 1fr); } }
+
+.editor { background: var(--code-bg); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); min-width: 0; }
+.tabs { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+.dots { display: flex; gap: 5px; }
+.dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: block; }
+.file { font-family: var(--f-code); font-size: 13px; font-weight: 600; padding: 3px 10px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; }
+.pz-nav { margin-left: auto; display: flex; gap: 6px; }
+.pz-btn { font-family: var(--f-code); font-size: 12px; padding: 3px 10px; border-radius: 6px; border: 1px solid var(--line); background: transparent; cursor: pointer; color: var(--muted); }
+.pz-btn[aria-current="true"] { color: var(--ink); border-color: var(--ink); }
+.pz-btn.done::after { content: " ✓"; color: var(--ok); }
+.code-wrap { overflow-x: auto; }
+pre.code { margin: 0; padding: 14px 16px 18px 0; font-family: var(--f-code); font-size: 13.5px; line-height: 2.05; color: var(--code-ink); counter-reset: ln; min-width: max-content; }
+.ln { display: block; padding-left: 52px; position: relative; white-space: pre; }
+.ln::before { counter-increment: ln; content: counter(ln); position: absolute; left: 0; width: 36px; text-align: right; color: var(--gutter-ink); font-size: 12px; }
+.kw { color: var(--syn-kw); } .str { color: var(--syn-str); } .fn { color: var(--syn-fn); } .num { color: var(--syn-num); } .pun { color: var(--syn-punct); } .com { color: var(--syn-com); font-style: italic; }
+
+.slot { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; min-width: 9ch; min-height: 26px; padding: 0 8px 0 3px; margin: 0 1px; border: 1.5px dashed var(--gutter-ink); border-radius: 6px; background: transparent; cursor: pointer; font-family: var(--f-code); font-size: 13px; line-height: 1.6; white-space: pre; transition: border-color .15s, background .15s; }
+.slot .no { font-size: 10px; font-weight: 600; min-width: 17px; height: 17px; border-radius: 4px; display: inline-grid; place-items: center; background: var(--line); color: var(--muted); }
+.slot .ph { color: var(--gutter-ink); }
+.slot.filled { border-style: solid; border-color: var(--cat, var(--line)); background: color-mix(in srgb, var(--cat, transparent) 10%, transparent); }
+.slot.filled .no { background: var(--cat); color: var(--code-bg); }
+.slot.hinted:not(.filled) { border-color: var(--cat); }
+.slot.hinted:not(.filled) .ph { color: var(--cat); }
+.slot.ok { border-color: var(--ok); background: var(--ok-bg); }
+.slot.ok .no { background: var(--ok); }
+.slot.bad { border-color: var(--bad); background: var(--bad-bg); animation: shake .35s; }
+.slot.bad .no { background: var(--bad); }
+.slot.over, .armed .slot:not(.ok):hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.armed .slot:not(.ok) { border-color: var(--accent); }
+@keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+.side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.label { font-family: var(--f-code); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.goal { display: flex; gap: 14px; align-items: flex-start; padding: 16px 20px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, var(--panel)); border: 2px solid var(--accent); }
+.goal svg { width: 34px; height: 34px; flex: none; color: var(--accent); margin-top: 2px; }
+.goal .label { color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+#goal { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: clamp(19px, 2.4vw, 24px); line-height: 1.25; text-wrap: balance; }
+.tray-card { position: relative; }
+.tray { display: flex; flex-wrap: wrap; gap: 8px; min-height: 48px; }
+.tray-empty { color: var(--muted); font-size: 13px; margin: 0; }
+.piece { --cat: var(--c-text); display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; max-width: 100%; padding: 6px 10px 7px; border-radius: 8px; border: 1px solid var(--line); border-left: 4px solid var(--cat); background: var(--code-bg); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: var(--shadow); text-align: left; }
+.piece:hover { border-color: var(--cat); }
+.piece code { font-family: var(--f-code); font-size: 12.5px; color: var(--code-ink); white-space: pre-wrap; word-break: break-word; }
+.piece .chip { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--cat); }
+.piece[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.piece.dragging { opacity: .35; }
+.ghost { position: fixed; z-index: 50; pointer-events: none; transform: translate(-50%, -60%) rotate(-2deg); opacity: .95; }
+.tip { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; padding-left: 18px; display: grid; gap: 2px; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; font-weight: 600; }
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.link { border: none; background: none; text-decoration: underline; color: var(--muted); padding-inline: 4px; }
+.status { font-size: 14px; margin: 0; min-height: 1.5em; }
+.status.bad { color: var(--bad); } .status.ok { color: var(--ok); font-weight: 600; }
+
+.cat-func { --cat: var(--c-func); } .cat-param { --cat: var(--c-param); } .cat-ret { --cat: var(--c-ret); }
+.cat-cond { --cat: var(--c-cond); } .cat-arrow { --cat: var(--c-arrow); } .cat-method { --cat: var(--c-method); }
+.cat-obj { --cat: var(--c-obj); } .cat-text { --cat: var(--c-text); }
+
+.explain { display: flex; flex-direction: column; gap: 10px; }
+.explain h3, .win h3 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0; }
+.parts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.part { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 12px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); }
+.part .no { font-family: var(--f-code); font-size: 11px; font-weight: 600; width: 22px; height: 22px; border-radius: 5px; display: grid; place-items: center; background: var(--cat); color: var(--code-bg); }
+.part.bad .no { background: var(--bad); } .part.pending .no { background: var(--line); color: var(--muted); }
+.part .head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.part .head code { font-family: var(--f-code); font-size: 12.5px; word-break: break-word; }
+.part .kind { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--cat); }
+.part p { margin: 3px 0 0; font-size: 14px; color: var(--muted); max-width: 70ch; }
+.part.bad p { color: var(--bad); }
+
+.win { border: 2px solid var(--ok); background: var(--panel); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.win .stars { font-size: 22px; letter-spacing: 3px; color: var(--c-arrow); }
+.console { border: 1px solid #2a2f3a; border-radius: 10px; overflow: hidden; background: #14171e; color: #dfe4ec; }
+.console .bar { font-family: var(--f-code); font-size: 11px; padding: 6px 10px; background: #1d222c; color: #8b95a7; border-bottom: 1px solid #2a2f3a; display: flex; gap: 8px; align-items: center; }
+.console .bar b { color: #dfe4ec; font-weight: 600; }
+.cl { font-family: var(--f-code); font-size: 13px; padding: 5px 12px 5px 28px; border-bottom: 1px solid #222733; position: relative; white-space: pre-wrap; word-break: break-word; opacity: 0; animation: in .25s forwards; }
+.cl::before { content: "›"; position: absolute; left: 12px; color: #5b6578; }
+.cl.n { color: #b49cff; } .cl.s { color: #e6edf5; } .cl.b { color: #ffa86b; } .cl.a { color: #8fd19e; }
+@keyframes in { to { opacity: 1; } }
+
+.foot { color: var(--muted); font-size: 12.5px; }
+.reset { margin-left: 4px; }
+
+@media (max-width: 880px) {
+  .tray-card { position: sticky; bottom: 0; z-index: 5; max-height: 42vh; overflow: auto; padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)); box-shadow: 0 -10px 24px -14px rgba(0,0,0,.4); }
+}
+@media (prefers-reduced-motion: reduce) { .slot.bad, .cl { animation: none; opacity: 1; } * { transition: none !important; } }
+</style>
+</head><body>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <div class="course">JavaScript 1 · FEND26</div>
+      <h1><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--accent)" d="M10 2a2.5 2.5 0 0 1 2.45 3H17a1 1 0 0 1 1 1v4.55A2.5 2.5 0 1 1 18 15.45V20a1 1 0 0 1-1 1h-4.55a2.5 2.5 0 1 0-4.9 0H3a1 1 0 0 1-1-1v-4.55a2.5 2.5 0 1 0 0-4.9V6a1 1 0 0 1 1-1h4.55A2.5 2.5 0 0 1 10 2Z"/></svg>JavaScript-pusslet</h1>
+      <p>Dra kodbitarna till rätt plats så att programmet fungerar. När allt stämmer ser du vad koden skriver ut i konsolen.</p>
+    </div>
+  </header>
+
+  <nav class="levels" id="levels" aria-label="Nivåer"></nav>
+
+  <section class="intro" id="intro"></section>
+
+  <div class="board">
+    <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+      <div class="goal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg><div><p class="label">Ditt uppdrag</p><p id="goal"></p></div></div>
+      <div class="editor" id="editor">
+        <div class="tabs">
+          <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <span class="file" id="file"></span>
+          <div class="pz-nav" id="pznav"></div>
+        </div>
+        <div class="code-wrap"><pre class="code" id="code"></pre></div>
+      </div>
+      <div id="win"></div>
+      <section class="explain" id="explain"></section>
+    </div>
+
+    <aside class="side">
+      <div class="card tray-card">
+        <p class="label">Kodbitar</p>
+        <div class="tray" id="tray"></div>
+        <ul class="tip"><li>Dra eller klicka på en kodbit för att placera den.</li><li>Klicka på en kodbit i koden för att ta bort den.</li></ul>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="check" type="button">Kör koden</button>
+        <button class="btn" id="hint" type="button">Ledtråd</button>
+        <button class="btn link" id="reveal" type="button" hidden>Visa lösning</button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+      <p class="foot">Stjärnor: rätt på första försöket utan ledtråd ger tre. <button class="btn link reset" id="resetAll" type="button">Nollställ framsteg</button></p>
+    </aside>
+  </div>
+</div>
+
+<script>
+const CATS = {
+  func: "Funktion", param: "Parameter", ret: "Return", cond: "Villkor",
+  arrow: "Arrow function", method: "Array-metod", obj: "Objekt", text: "Text & utskrift"
+};
+
+const LEVELS = [
+{
+  title: "Funktioner", lesson: "Grund · function, parametrar, return",
+  intro: "En funktion är ett namngivet kodblock som du kan köra flera gånger. Parametrar tar emot värden när funktionen anropas, och return skickar tillbaka ett resultat.",
+  puzzles: [
+  {
+    file: "kassa.js",
+    goal: "Gör klart kaféets kassa så att den räknar ut priset för två kaffe à 35 kr.",
+    code: `function ⟦a⟧(price, amount) {
+  ⟦b⟧ price * amount;
+}
+
+const total = calculateTotal(⟦c⟧);
+console.log(\`Att betala: \${total} kr\`);`,
+    slots: {
+      a: { piece: "calculateTotal", cat: "func", why: "Funktionens namn. Det måste stavas exakt som när funktionen anropas längre ner, stora bokstäver inräknade." },
+      b: { piece: "return", cat: "ret", why: "return skickar tillbaka resultatet till den som anropade funktionen. Värdet hamnar i variabeln total." },
+      c: { piece: "35, 2", cat: "param", why: "Argumenten är de riktiga värdena som skickas in. 35 hamnar i price och 2 i amount, i samma ordning som parametrarna." }
+    },
+    wrong: [
+      { t: "calculatetotal", cat: "func", why: "JavaScript skiljer på stora och små bokstäver. calculatetotal och calculateTotal är två olika namn, så anropet hittar ingen funktion." },
+      { t: "console.log", cat: "ret", why: "console.log skriver bara ut värdet. Funktionen returnerar då undefined, och total blir undefined." },
+      { t: "price, amount", cat: "param", why: "price och amount finns bara inne i funktionen. Vid anropet skickar du in riktiga värden." }
+    ],
+    output: ["Att betala: 70 kr"]
+  },
+  {
+    file: "halsning.js",
+    goal: "Skriv en funktion som hälsar på en person och skriv ut hälsningen till Sara.",
+    code: `function greet(⟦a⟧) {
+  return ⟦b⟧;
+}
+
+⟦c⟧`,
+    slots: {
+      a: { piece: "name", cat: "param", why: "En parameter är ett variabelnamn som får sitt värde när funktionen anropas. Här blir name lika med \"Sara\"." },
+      b: { piece: "`Hej ${name}, välkommen!`", cat: "text", why: "En template literal skrivs med backticks. ${name} byts ut mot värdet i parametern." },
+      c: { piece: 'console.log(greet("Sara"));', cat: "text", why: "greet(\"Sara\") returnerar texten, och console.log skriver ut den. Funktionen anropas inne i console.log." }
+    },
+    wrong: [
+      { t: '"Sara"', cat: "param", why: "En parameter är ett namn, inte ett värde. Värdet \"Sara\" skickas in när funktionen anropas." },
+      { t: "'Hej ${name}, välkommen!'", cat: "text", why: "Med vanliga citattecken blir ${name} bokstavlig text. Template literals kräver backticks: `...`." },
+      { t: 'greet("Sara");', cat: "text", why: "Funktionen körs och returnerar texten, men ingenting skrivs ut. Värdet behöver skickas till console.log." }
+    ],
+    output: ["Hej Sara, välkommen!"]
+  }]
+},
+{
+  title: "if / else", lesson: "Grund · Villkor och jämförelser",
+  intro: "Med if, else if och else väljer programmet väg beroende på ett villkor. Jämförelser som ===, < och >= blir alltid true eller false.",
+  puzzles: [
+  {
+    file: "biljett.js",
+    goal: "Ge rätt biljettpris på bion: barn under 12 betalar 60 kr, pensionärer från 65 betalar 80 kr, övriga 120 kr.",
+    code: `function getTicketPrice(age) {
+  if (⟦a⟧) {
+    return 60;
+  } ⟦b⟧ (age >= 65) {
+    return 80;
+  } ⟦c⟧ {
+    return 120;
+  }
+}
+
+console.log(getTicketPrice(10));
+console.log(getTicketPrice(70));
+console.log(getTicketPrice(30));`,
+    slots: {
+      a: { piece: "age < 12", cat: "cond", why: "Villkoret blir true när åldern är lägre än 12. Då körs första blocket och funktionen returnerar 60." },
+      b: { piece: "else if", cat: "cond", why: "else if testar ett nytt villkor, men bara om det första var false." },
+      c: { piece: "else", cat: "cond", why: "else fångar allt som inte matchade något av villkoren ovan. Det behöver inget eget villkor." }
+    },
+    wrong: [
+      { t: "age = 12", cat: "cond", why: "Ett likhetstecken är tilldelning: age sätts till 12. För jämförelser används ===, < eller >." },
+      { t: "elseif", cat: "cond", why: "I JavaScript skrivs else if med mellanslag. elseif ger ett syntaxfel." },
+      { t: "else (age > 0)", cat: "cond", why: "else tar inget villkor. Behöver du ett villkor till skriver du else if." }
+    ],
+    output: ["60", "80", "120"]
+  },
+  {
+    file: "login.js",
+    goal: "Släpp bara in användaren om både användarnamn och lösenord stämmer.",
+    code: `function checkLogin(username, password) {
+  if (⟦a⟧ && ⟦b⟧) {
+    return "Inloggad!";
+  }
+  ⟦c⟧
+}
+
+console.log(checkLogin("admin", "hemligt123"));
+console.log(checkLogin("admin", "fel"));`,
+    slots: {
+      a: { piece: 'username === "admin"', accept: ['username === "admin"', 'password === "hemligt123"'], cat: "cond", why: "=== jämför både värde och typ. Användarnamnet måste vara exakt \"admin\"." },
+      b: { piece: 'password === "hemligt123"', accept: ['username === "admin"', 'password === "hemligt123"'], cat: "cond", why: "&& betyder och: båda villkoren måste vara true. Ordningen spelar ingen roll här." },
+      c: { piece: 'return "Fel användarnamn eller lösenord";', cat: "ret", why: "Om villkoret är false hoppar koden över if-blocket och kommer hit. Ett return räcker, inget else behövs eftersom första return redan avslutar funktionen." }
+    },
+    wrong: [
+      { t: 'password = "hemligt123"', cat: "cond", why: "Ett likhetstecken tilldelar ett nytt värde istället för att jämföra. Använd ===." },
+      { t: "username === admin", cat: "cond", why: "Utan citattecken letar JavaScript efter en variabel som heter admin. Den finns inte, så koden kraschar." },
+      { t: 'console.log("Fel användarnamn eller lösenord");', cat: "text", why: "Texten skrivs ut inne i funktionen, men funktionen returnerar undefined. Anropet loggar då också undefined." }
+    ],
+    output: ["Inloggad!", "Fel användarnamn eller lösenord"]
+  }]
+},
+{
+  title: "Arrow functions", lesson: "Lektion · Arrow functions",
+  intro: "En arrow function är ett kortare sätt att skriva en funktion. Den sparas i en variabel. Utan {} returneras uttrycket direkt, med {} behövs return.",
+  puzzles: [
+  {
+    file: "matte.js",
+    goal: "Skriv om funktionerna som arrow functions: en som dubblar ett tal och en som kollar om ett tal är jämnt.",
+    code: `// Samma sak som: function double(number) { return number * 2; }
+⟦a⟧ double = ⟦b⟧ ⟦c⟧ number * 2;
+
+const isEven = (number) => {
+  ⟦d⟧ number % 2 === 0;
+};
+
+console.log(double(5));
+console.log(isEven(7));`,
+    slots: {
+      a: { piece: "const", cat: "arrow", why: "En arrow function har inget eget namn. Den sparas i en variabel, oftast med const." },
+      b: { piece: "(number)", cat: "param", why: "Parametrarna skrivs inom parentes före pilen, precis som i en vanlig funktion." },
+      c: { piece: "=>", cat: "arrow", why: "Pilen skiljer parametrarna från funktionskroppen. Utan {} returneras number * 2 automatiskt (implicit return)." },
+      d: { piece: "return", cat: "ret", why: "När funktionskroppen har {} måste du skriva return själv, annars blir resultatet undefined." }
+    },
+    wrong: [
+      { t: "function", cat: "func", why: "function double = ... är inte giltig syntax. En arrow function sparas i en variabel med const." },
+      { t: "->", cat: "arrow", why: "Pilen skrivs med likhetstecken: =>. -> finns inte i JavaScript." },
+      { t: "console.log", cat: "text", why: "console.log skriver ut värdet men returnerar det inte. isEven(7) skulle ge undefined." }
+    ],
+    output: ["10", "false"]
+  },
+  {
+    file: "rabatt.js",
+    goal: "Medlemmar får 20 % rabatt. Räkna ut priset och visa det med \"kr\" efter.",
+    code: `const getDiscountPrice = ⟦a⟧ => {
+  if (isMember) {
+    ⟦b⟧
+  }
+  return price;
+};
+
+const formatPrice = (price) => ⟦c⟧;
+
+console.log(getDiscountPrice(200, true));
+console.log(getDiscountPrice(200, false));
+console.log(formatPrice(getDiscountPrice(200, true)));`,
+    slots: {
+      a: { piece: "(price, isMember)", cat: "param", why: "Med flera parametrar krävs parenteser. Ordningen avgör vilket argument som hamnar var." },
+      b: { piece: "return price * 0.8;", cat: "ret", why: "Medlemmar betalar 80 % av priset. return avslutar funktionen direkt, så raden return price körs inte." },
+      c: { piece: "`${price} kr`", cat: "text", why: "Utan {} returneras uttrycket direkt. Template literal sätter ihop talet med texten kr." }
+    },
+    wrong: [
+      { t: "price, isMember", cat: "param", why: "Bara en ensam parameter får skrivas utan parenteser. Med två parametrar blir det ett syntaxfel." },
+      { t: "price * 0.8;", cat: "ret", why: "Rabatten räknas ut men sparas eller returneras inte. Funktionen fortsätter och returnerar fullpris." },
+      { t: "{ `${price} kr` }", cat: "text", why: "Med {} blir det en funktionskropp, och utan return returneras undefined." }
+    ],
+    output: ["160", "200", "160 kr"]
+  }]
+},
+{
+  title: "Array-metoder", lesson: "Lektion · Array-metoder",
+  intro: "Array-metoder tar en funktion (en callback) som körs för varje element. map gör om, filter väljer ut, find hittar det första, forEach gör något med varje, och reduce räknar ihop.",
+  puzzles: [
+  {
+    file: "klasslista.js",
+    goal: "Välj rätt array-metod på varje rad: korta namn, versaler, första namnet på C och en hälsning till alla.",
+    code: `const names = ["Ali", "Bea", "Cornelia", "Dan", "Elsa"];
+
+const shortNames = names.⟦a⟧((name) => name.length <= 3);
+const loudNames = names.⟦b⟧((name) => name.toUpperCase());
+const firstC = names.⟦c⟧((name) => name.startsWith("C"));
+
+console.log(shortNames);
+console.log(loudNames);
+console.log(firstC);
+
+names.⟦d⟧((name) => console.log(\`Hej \${name}!\`));`,
+    slots: {
+      a: { piece: "filter", cat: "method", why: "filter behåller de element där funktionen returnerar true. Resultatet är en ny, kortare array." },
+      b: { piece: "map", cat: "method", why: "map gör om varje element och returnerar en ny array med lika många element." },
+      c: { piece: "find", cat: "method", why: "find returnerar det första elementet som matchar, inte en array." },
+      d: { piece: "forEach", cat: "method", why: "forEach kör funktionen för varje element men returnerar ingenting. Den passar när du bara vill göra något, som att skriva ut." }
+    },
+    wrong: [
+      { t: "push", cat: "method", why: "push lägger till ett element i slutet av arrayen. Den tar ingen funktion och väljer inte ut något." },
+      { t: "includes", cat: "method", why: "includes tar ett värde, inte en funktion, och svarar bara true eller false." },
+      { t: "sort", cat: "method", why: "sort ändrar ordningen på arrayen. Den väljer inte ut eller gör om några värden." }
+    ],
+    output: ['["Ali", "Bea", "Dan"]', '["ALI", "BEA", "CORNELIA", "DAN", "ELSA"]', "Cornelia", "Hej Ali!", "Hej Bea!", "Hej Cornelia!", "Hej Dan!", "Hej Elsa!"]
+  },
+  {
+    file: "prov.js",
+    goal: "Ta fram provresultaten: godkända (minst 50), godkända med 5 bonuspoäng, om någon fick 100 och totalsumman.",
+    code: `const scores = [45, 82, 67, 91, 38];
+
+const passed = scores.filter(⟦a⟧);
+const withBonus = passed.map(⟦b⟧);
+const hasPerfect = scores.⟦c⟧((score) => score === 100);
+const total = scores.reduce(⟦d⟧, 0);
+
+console.log(passed);
+console.log(withBonus);
+console.log(hasPerfect);
+console.log(total);`,
+    slots: {
+      a: { piece: "(score) => score >= 50", cat: "arrow", why: "filter behöver en funktion som returnerar true eller false. Här behålls alla resultat på minst 50." },
+      b: { piece: "(score) => score + 5", cat: "arrow", why: "map använder det som returneras som nytt värde. Utan {} returneras score + 5 direkt." },
+      c: { piece: "some", cat: "method", why: "some svarar true om minst ett element matchar. Ingen fick 100, så svaret blir false." },
+      d: { piece: "(sum, score) => sum + score", cat: "arrow", why: "reduce bär med sig en summa. Varje varv lägger till score, och 0 efter funktionen är startvärdet." }
+    },
+    wrong: [
+      { t: "score >= 50", cat: "cond", why: "filter behöver en funktion som körs för varje element. score finns inte utanför en funktion, så koden kraschar." },
+      { t: "(score) => { score + 5 }", cat: "arrow", why: "Med {} krävs return. Nu returneras undefined, och withBonus blir en array full av undefined." },
+      { t: "every", cat: "method", why: "every kollar om alla element matchar. Uppdraget gäller om någon fick 100, och då passar some." },
+      { t: "(score) => sum + score", cat: "arrow", why: "sum finns inte. reduce skickar in summan som första parameter, så funktionen behöver både sum och score." }
+    ],
+    output: ["[82, 67, 91]", "[87, 72, 96]", "false", "323"]
+  }]
+},
+{
+  title: "Arrayer med objekt", lesson: "Lektion · Array-metoder med objekt",
+  intro: "Oftast innehåller en array objekt. Inne i callbacken är parametern ett enskilt objekt, och dess egenskaper läses med punktnotation: product.name.",
+  puzzles: [
+  {
+    file: "webbshop.js",
+    goal: "Räkna produkterna i lager, lista alla namn och skriv ut musens pris.",
+    code: `const products = [
+  { id: 1, name: "Hörlurar", price: 499, inStock: true },
+  { id: 2, name: "Tangentbord", price: 899, inStock: false },
+  { id: 3, name: "Mus", price: 299, inStock: true },
+];
+
+const available = products.filter((product) => ⟦a⟧);
+const productNames = products.map((product) => ⟦b⟧);
+const mouse = products.find((product) => ⟦c⟧);
+
+console.log(available.length);
+console.log(productNames);
+console.log(⟦d⟧);`,
+    slots: {
+      a: { piece: "product.inStock", cat: "obj", why: "inStock är redan true eller false, så värdet kan användas direkt som villkor i filter." },
+      b: { piece: "product.name", cat: "obj", why: "map plockar ut namnet ur varje objekt. Resultatet blir en array med bara text." },
+      c: { piece: "product.id === 3", cat: "cond", why: "find letar efter det första objektet där villkoret är true. id är unikt, så det blir exakt en produkt." },
+      d: { piece: "mouse.price", cat: "obj", why: "mouse är objektet som find hittade. Priset läses med punktnotation." }
+    },
+    wrong: [
+      { t: "products.inStock", cat: "obj", why: "products är hela arrayen och har ingen inStock. Värdet blir undefined, och filter returnerar en tom array." },
+      { t: "product.Name", cat: "obj", why: "Egenskapsnamn är skiftlägeskänsliga. Objektet har name med liten bokstav, så du får undefined." },
+      { t: "product.id = 3", cat: "cond", why: "Ett likhetstecken ändrar id på varje objekt till 3. Använd === för att jämföra." },
+      { t: "mouse", cat: "obj", why: "Då skrivs hela objektet ut. Uppdraget gäller bara priset." }
+    ],
+    output: ["2", '["Hörlurar", "Tangentbord", "Mus"]', "299"]
+  },
+  {
+    file: "betyg.js",
+    goal: "Sätt betyg på varje elev: VG från 80 poäng, G från 50, annars IG.",
+    code: `const students = [
+  { name: "Amir", points: 82 },
+  { name: "Bella", points: 47 },
+  { name: "Chen", points: 65 },
+];
+
+const getGrade = (points) => {
+  if (points >= 80) {
+    return "VG";
+  } else if (⟦a⟧) {
+    return "G";
+  }
+  return "IG";
+};
+
+const results = students.map((student) => ⟦b⟧);
+
+results.forEach((result) => console.log(⟦c⟧));`,
+    slots: {
+      a: { piece: "points >= 50", cat: "cond", why: "Villkoren testas uppifrån. Den som har 80 eller mer har redan fått VG, så här räcker det att kolla 50." },
+      b: { piece: "({ name: student.name, grade: getGrade(student.points) })", cat: "obj", why: "map returnerar ett nytt objekt för varje elev. Parenteserna runt {} behövs för att JavaScript ska förstå att det är ett objekt och inte en funktionskropp." },
+      c: { piece: "`${result.name}: ${result.grade}`", cat: "text", why: "Varje result är ett av de nya objekten, så både name och grade finns." }
+    },
+    wrong: [
+      { t: "points => 50", cat: "cond", why: "=> är pilen i en arrow function, inte större än eller lika med. Skriv >=." },
+      { t: "{ name: student.name, grade: getGrade(student.points) }", cat: "obj", why: "Utan parenteser tolkar JavaScript {} som funktionskroppen. Det ger ett syntaxfel. Lägg () runt objektet." },
+      { t: "`${student.name}: ${student.grade}`", cat: "text", why: "student finns bara inne i map-funktionen. Här heter parametern result." }
+    ],
+    output: ["Amir: VG", "Bella: IG", "Chen: G"]
+  }]
+},
+{
+  title: "Slutboss: Spellista", lesson: "Repetition · Allt på en gång",
+  intro: "En spellista som använder allt: en funktion med if, arrow functions, filter, reduce och forEach på en array med objekt.",
+  puzzles: [
+  {
+    file: "spellista.js",
+    goal: "Skriv ut alla gillade låtar med speltid i minuter och visa den totala speltiden.",
+    code: `const songs = [
+  { title: "Midnatt", artist: "Nova", seconds: 214, liked: true },
+  { title: "Solsken", artist: "Lumen", seconds: 187, liked: false },
+  { title: "Vågor", artist: "Nova", seconds: 251, liked: true },
+];
+
+function formatTime(seconds) {
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  ⟦a⟧ (sec < 10) {
+    return \`\${min}:0\${sec}\`;
+  }
+  return \`\${min}:\${sec}\`;
+}
+
+const likedSongs = songs.⟦b⟧((song) => song.liked);
+const totalSeconds = likedSongs.reduce(⟦c⟧, 0);
+
+likedSongs.forEach((song) => {
+  console.log(⟦d⟧);
+});
+
+console.log("Total speltid: " + ⟦e⟧);`,
+    slots: {
+      a: { piece: "if", cat: "cond", why: "Om sekunderna är under 10 läggs en nolla till, så att 4:05 inte blir 4:5." },
+      b: { piece: "filter", cat: "method", why: "filter väljer ut låtarna där liked är true." },
+      c: { piece: "(sum, song) => sum + song.seconds", cat: "arrow", why: "reduce lägger ihop sekunderna. song är ett objekt, så du hämtar song.seconds." },
+      d: { piece: "`${song.title} (${formatTime(song.seconds)})`", cat: "text", why: "En funktion kan anropas inne i en template literal. formatTime gör om 214 sekunder till 3:34." },
+      e: { piece: "formatTime(totalSeconds)", cat: "func", why: "Samma funktion återanvänds för totalen. Det är en av de stora fördelarna med funktioner." }
+    },
+    wrong: [
+      { t: "else", cat: "cond", why: "else måste komma efter ett if och tar inget villkor." },
+      { t: "map", cat: "method", why: "map väljer inte ut något. Du skulle få [true, false, true] istället för låtarna." },
+      { t: "(sum, song) => sum + song", cat: "arrow", why: "song är ett helt objekt. Plus med ett objekt ger text som \"0[object Object]\". Hämta song.seconds." },
+      { t: "`${song.title} (${song.seconds})`", cat: "text", why: "Då visas speltiden i sekunder (214). Skicka värdet genom formatTime för att få 3:34." },
+      { t: "formatTime(seconds)", cat: "func", why: "seconds finns bara inne i formatTime. Utanför funktionen heter summan totalSeconds." }
+    ],
+    output: ["Midnatt (3:34)", "Vågor (4:11)", "Total speltid: 7:45"]
+  }]
+}
+];
+
+/* ---------- state ---------- */
+const KEY = "js1-pusslet-v1";
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { progress = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(progress)); } catch (e) {} };
+
+let cur = { L: 0, P: 0 };
+let S = null;
+let selected = null;
+
+function pid(L, P) { return L + "-" + P; }
+function seeded(str) { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 10000) / 10000; }; }
+
+function loadPuzzle(L, P) {
+  cur = { L, P };
+  const pz = LEVELS[L].puzzles[P];
+  const order = [...pz.code.matchAll(/⟦(\w+)⟧/g)].map(m => m[1]);
+  let pieces = order.map(k => ({ t: pz.slots[k].piece, cat: pz.slots[k].cat, correct: true }))
+    .concat(pz.wrong.map(w => ({ t: w.t, cat: w.cat, why: w.why, correct: false })));
+  const rnd = seeded(pz.file + L + P);
+  for (let i = pieces.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [pieces[i], pieces[j]] = [pieces[j], pieces[i]]; }
+  S = { pz, order, pieces, place: {}, result: {}, checks: 0, hint: false, solved: false, revealed: false, fails: 0 };
+  selected = null;
+  setStatus("");
+  renderAll();
+}
+
+/* ---------- syntaxfärgning ---------- */
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function hl(src) {
+  const re = /(\/\/[^\n]*)|("[^"\n]*"|'[^'\n]*'|`[^`\n]*`)|(=>|===|!==|\.\.\.|&&|\|\|)|\b(function|return|const|let|if|else|true|false|undefined)\b|(\b\d+(?:\.\d+)?\b)|(\b[a-zA-Z_]\w*(?=\())/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    const cls = m[1] ? "com" : m[2] ? "str" : m[3] ? "pun" : m[4] ? "kw" : m[5] ? "num" : "fn";
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+
+/* ---------- rendering ---------- */
+const $ = id => document.getElementById(id);
+function stars(n) { return "★".repeat(n) + "☆".repeat(3 - n); }
+
+function renderLevels() {
+  $("levels").innerHTML = LEVELS.map((lv, i) => {
+    const got = lv.puzzles.reduce((a, _, j) => a + ((progress[pid(i, j)] || {}).stars || 0), 0);
+    const max = lv.puzzles.length * 3;
+    const avg = Math.round(got / lv.puzzles.length);
+    return `<button class="lvl" type="button" data-l="${i}" aria-current="${i === cur.L}">
+      <span class="n">Nivå ${i + 1}</span><span class="t">${esc(lv.title)}</span>
+      <span class="s" aria-label="${got} av ${max} stjärnor">${stars(avg)}</span></button>`;
+  }).join("");
+}
+
+function renderIntro() {
+  const lv = LEVELS[cur.L];
+  $("intro").innerHTML = `<h2>${esc(lv.title)}</h2><span class="lesson">${esc(lv.lesson)}</span><p>${esc(lv.intro)}</p>`;
+  $("pznav").innerHTML = lv.puzzles.length > 1 ? lv.puzzles.map((p, j) =>
+    `<button class="pz-btn ${(progress[pid(cur.L, j)] || {}).stars !== undefined ? "done" : ""}" type="button" data-p="${j}" aria-current="${j === cur.P}">Pussel ${j + 1}</button>`).join("") : "";
+}
+
+function slotHTML(k, no) {
+  const slot = S.pz.slots[k];
+  const idx = S.place[k];
+  const res = S.result[k] || "";
+  const filled = idx !== undefined;
+  const cat = filled ? S.pieces[idx].cat : slot.cat;
+  const classes = ["slot", "cat-" + cat, filled ? "filled" : "", S.hint ? "hinted" : "", res].join(" ");
+  const body = filled ? hl(S.pieces[idx].t) : `<span class="ph">${S.hint ? CATS[slot.cat].toLowerCase() : "      "}</span>`;
+  const label = `Lucka ${no}${filled ? ": " + S.pieces[idx].t : ", tom"}`;
+  return `<button type="button" class="${classes}" data-slot="${k}" aria-label="${esc(label)}"><span class="no">${no}</span>${body}</button>`;
+}
+
+function renderCode() {
+  $("file").textContent = S.pz.file;
+  const parts = S.pz.code.split(/⟦(\w+)⟧/);
+  let html = "";
+  parts.forEach((p, i) => { html += i % 2 ? slotHTML(p, S.order.indexOf(p) + 1) : hl(p); });
+  $("code").innerHTML = html.split("\n").map(l => `<span class="ln">${l || " "}</span>`).join("");
+  $("editor").classList.toggle("armed", selected !== null);
+}
+
+function renderTray() {
+  const used = new Set(Object.values(S.place));
+  const free = S.pieces.map((p, i) => ({ p, i })).filter(x => !used.has(x.i));
+  $("tray").innerHTML = free.length ? free.map(({ p, i }) =>
+    `<button type="button" class="piece cat-${p.cat}" data-idx="${i}" aria-pressed="${selected === i}"><span class="chip">${CATS[p.cat]}</span><code>${hl(p.t)}</code></button>`).join("")
+    : `<p class="tray-empty">Alla bitar är utlagda. De som blev över hör inte hemma i koden.</p>`;
+}
+
+function renderExplain() {
+  if (!S.checks && !S.solved) { $("explain").innerHTML = ""; return; }
+  const items = S.order.map((k, n) => {
+    const slot = S.pz.slots[k], idx = S.place[k], res = S.result[k];
+    if (S.solved || res === "ok") {
+      return `<li class="part cat-${slot.cat}"><span class="no">${n + 1}</span><div><div class="head"><span class="kind">${CATS[slot.cat]}</span><code>${hl(slot.piece)}</code></div><p>${esc(slot.why)}</p></div></li>`;
+    }
+    if (res === "bad" && idx !== undefined) {
+      const pc = S.pieces[idx];
+      const why = pc.correct ? "Den här biten är rätt, men den hör hemma i en annan lucka." : pc.why;
+      return `<li class="part bad cat-${pc.cat}"><span class="no">${n + 1}</span><div><div class="head"><span class="kind">Fel bit</span><code>${hl(pc.t)}</code></div><p>${esc(why)}</p></div></li>`;
+    }
+    return `<li class="part pending"><span class="no">${n + 1}</span><div><div class="head"><span class="kind" style="color:var(--muted)">Tom lucka</span></div><p>Fyll i luckan och kör igen.</p></div></li>`;
+  }).join("");
+  $("explain").innerHTML = `<h3>${S.solved ? "Så hänger koden ihop" : "Kodens delar"}</h3><ol class="parts">${items}</ol>`;
+}
+
+function lineClass(l) {
+  if (/^-?\d+(\.\d+)?$/.test(l)) return "n";
+  if (l === "true" || l === "false") return "b";
+  if (l.startsWith("[")) return "a";
+  return "s";
+}
+
+function renderWin() {
+  const w = $("win");
+  if (!S.solved) { w.innerHTML = ""; return; }
+  const st = (progress[pid(cur.L, cur.P)] || {}).stars || 0;
+  const lv = LEVELS[cur.L];
+  const last = cur.L === LEVELS.length - 1 && cur.P === lv.puzzles.length - 1;
+  const nextLabel = cur.P < lv.puzzles.length - 1 ? "Nästa pussel" : last ? "Börja om från nivå 1" : "Nästa nivå";
+  const lines = S.pz.output.map((l, i) => `<div class="cl ${lineClass(l)}" style="animation-delay:${i * 120}ms">${esc(l)}</div>`).join("");
+  w.innerHTML = `<div class="win">
+    <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between">
+      <h3>${S.revealed ? "Här är lösningen" : "Rätt! Koden körs utan fel."}</h3>
+      <span class="stars" aria-label="${st} av 3 stjärnor">${stars(st)}</span>
+    </div>
+    <div class="console"><div class="bar">Konsol · <b>${esc(S.pz.file)}</b></div>${lines}</div>
+    <div><button class="btn primary" id="next" type="button">${nextLabel}</button></div>
+  </div>`;
+  $("next").onclick = () => {
+    if (cur.P < lv.puzzles.length - 1) loadPuzzle(cur.L, cur.P + 1);
+    else loadPuzzle(last ? 0 : cur.L + 1, 0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+}
+
+function renderSide() {
+  $("goal").textContent = S.pz.goal;
+  $("check").disabled = S.solved;
+  $("hint").disabled = S.solved || S.hint;
+  $("reveal").hidden = S.solved || S.fails < 3;
+}
+
+function renderAll() { renderLevels(); renderIntro(); renderCode(); renderTray(); renderExplain(); renderWin(); renderSide(); }
+
+function setStatus(msg, cls) { const s = $("status"); s.textContent = msg; s.className = "status " + (cls || ""); }
+
+/* ---------- logik ---------- */
+function place(idx, k) {
+  if (S.solved || S.result[k] === "ok") return;
+  const from = Object.keys(S.place).find(s => S.place[s] === idx);
+  const prev = S.place[k];
+  if (from) { delete S.place[from]; delete S.result[from]; }
+  if (prev !== undefined && from) S.place[from] = prev;
+  S.place[k] = idx;
+  delete S.result[k];
+  selected = null;
+  setStatus("");
+  renderCode(); renderTray();
+}
+function unplace(k) {
+  if (S.solved || S.result[k] === "ok") return;
+  delete S.place[k]; delete S.result[k];
+  renderCode(); renderTray();
+}
+
+function check() {
+  if (S.solved) return;
+  S.checks++;
+  let ok = 0, empty = 0;
+  S.order.forEach(k => {
+    const idx = S.place[k];
+    if (idx === undefined) { empty++; delete S.result[k]; return; }
+    const slot = S.pz.slots[k];
+    const good = (slot.accept || [slot.piece]).includes(S.pieces[idx].t);
+    S.result[k] = good ? "ok" : "bad";
+    if (good) ok++;
+  });
+  const total = S.order.length;
+  if (ok === total) {
+    S.solved = true;
+    const st = Math.max(1, 3 - (S.checks > 1 ? 1 : 0) - (S.hint ? 1 : 0));
+    const key = pid(cur.L, cur.P);
+    progress[key] = { stars: Math.max(st, (progress[key] || {}).stars || 0) };
+    save();
+    setStatus("Alla luckor är rätt.", "ok");
+  } else {
+    S.fails++;
+    const bad = total - ok - empty;
+    const bits = [];
+    if (ok) bits.push(`${ok} rätt`);
+    if (bad) bits.push(`${bad} fel`);
+    if (empty) bits.push(`${empty} tomma`);
+    setStatus(`${bits.join(", ")} av ${total}. Läs förklaringarna under koden och försök igen.`, "bad");
+  }
+  renderAll();
+}
+
+function reveal() {
+  S.order.forEach(k => {
+    const slot = S.pz.slots[k];
+    const idx = S.pieces.findIndex(p => p.t === slot.piece);
+    S.place[k] = idx; S.result[k] = "ok";
+  });
+  S.solved = true; S.revealed = true;
+  const key = pid(cur.L, cur.P);
+  if (!progress[key]) { progress[key] = { stars: 0 }; save(); }
+  setStatus("Lösningen visas. Läs igenom förklaringarna och prova nästa pussel.", "");
+  renderAll();
+}
+
+/* ---------- interaktion ---------- */
+$("levels").addEventListener("click", e => { const b = e.target.closest(".lvl"); if (b) loadPuzzle(+b.dataset.l, 0); });
+$("pznav").addEventListener("click", e => { const b = e.target.closest(".pz-btn"); if (b) loadPuzzle(cur.L, +b.dataset.p); });
+$("check").onclick = check;
+$("hint").onclick = () => { S.hint = true; setStatus("Luckorna visar nu vilken sorts kod som ska in. Ledtråden kostar en stjärna.", ""); renderCode(); renderSide(); };
+$("reveal").onclick = reveal;
+$("resetAll").onclick = () => { progress = {}; save(); loadPuzzle(0, 0); };
+
+let suppressClick = false;
+$("tray").addEventListener("click", e => {
+  if (suppressClick) return;
+  const p = e.target.closest(".piece"); if (!p) return;
+  const i = +p.dataset.idx;
+  selected = selected === i ? null : i;
+  renderTray(); renderCode();
+});
+$("code").addEventListener("click", e => {
+  if (suppressClick) return;
+  const s = e.target.closest(".slot"); if (!s) return;
+  const k = s.dataset.slot;
+  if (selected !== null) place(selected, k);
+  else if (S.place[k] !== undefined) unplace(k);
+});
+
+let drag = null;
+function startDrag(e, idx) {
+  drag = { idx, x: e.clientX, y: e.clientY, moved: false, ghost: null, src: e.target.closest(".piece, .slot") };
+}
+$("tray").addEventListener("pointerdown", e => {
+  const p = e.target.closest(".piece"); if (!p || e.button > 0) return;
+  startDrag(e, +p.dataset.idx);
+});
+$("code").addEventListener("pointerdown", e => {
+  const s = e.target.closest(".slot.filled"); if (!s || e.button > 0 || s.classList.contains("ok") || S.solved) return;
+  startDrag(e, S.place[s.dataset.slot]);
+});
+window.addEventListener("pointermove", e => {
+  if (!drag) return;
+  if (!drag.moved) {
+    if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
+    drag.moved = true;
+    const pc = S.pieces[drag.idx];
+    const g = document.createElement("div");
+    g.className = "piece ghost cat-" + pc.cat;
+    g.innerHTML = `<span class="chip">${CATS[pc.cat]}</span><code>${hl(pc.t)}</code>`;
+    document.body.appendChild(g);
+    drag.ghost = g;
+    drag.src && drag.src.classList.add("dragging");
+  }
+  drag.ghost.style.left = e.clientX + "px";
+  drag.ghost.style.top = e.clientY + "px";
+  document.querySelectorAll(".slot.over").forEach(s => s.classList.remove("over"));
+  const t = document.elementFromPoint(e.clientX, e.clientY);
+  const s = t && t.closest(".slot");
+  if (s && !s.classList.contains("ok")) s.classList.add("over");
+});
+function endDrag(e) {
+  if (!drag) return;
+  if (drag.moved) {
+    drag.ghost.remove();
+    suppressClick = true; setTimeout(() => suppressClick = false, 50);
+    const t = document.elementFromPoint(e.clientX, e.clientY);
+    const s = t && t.closest(".slot");
+    const fromSlot = Object.keys(S.place).find(k => S.place[k] === drag.idx);
+    if (s) place(drag.idx, s.dataset.slot);
+    else if (fromSlot) unplace(fromSlot);
+    else { renderTray(); renderCode(); }
+  }
+  drag = null;
+}
+window.addEventListener("pointerup", endDrag);
+window.addEventListener("pointercancel", () => { if (drag && drag.ghost) drag.ghost.remove(); drag = null; renderTray(); renderCode(); });
+
+loadPuzzle(0, 0);
+</script>
+</body></html>
