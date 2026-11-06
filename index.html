@@ -40,6 +40,7 @@ body{margin:0;padding:0}
   --c-method: #2b8a3e;
   --c-obj: #c2255c;
   --c-text: #5c6b80;
+  --c-loop: #3b5bdb;
   --shadow: 0 1px 0 rgba(31,26,20,.06), 0 6px 18px -8px rgba(31,26,20,.25);
   --f-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
   --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -52,7 +53,7 @@ body{margin:0;padding:0}
     --syn-kw: #c49bff; --syn-str: #8fd19e; --syn-fn: #7cb7ff; --syn-num: #ffa86b; --syn-punct: #8792a5; --syn-com: #6f6556;
     --ok: #69db7c; --ok-bg: #16301f; --bad: #ff8787; --bad-bg: #3a1a1d;
     --c-func: #5fa8f0; --c-param: #ff8f5a; --c-ret: #a48bff; --c-cond: #3fc8d9;
-    --c-arrow: #ffc34d; --c-method: #69db7c; --c-obj: #f06595; --c-text: #93a1b5;
+    --c-arrow: #ffc34d; --c-method: #69db7c; --c-obj: #f06595; --c-text: #93a1b5; --c-loop: #91a7ff;
     --shadow: 0 1px 0 rgba(0,0,0,.3), 0 8px 20px -10px rgba(0,0,0,.6);
     color-scheme: dark;
   }
@@ -153,7 +154,7 @@ pre.code { margin: 0; padding: 14px 16px 18px 0; font-family: var(--f-code); fon
 
 .cat-func { --cat: var(--c-func); } .cat-param { --cat: var(--c-param); } .cat-ret { --cat: var(--c-ret); }
 .cat-cond { --cat: var(--c-cond); } .cat-arrow { --cat: var(--c-arrow); } .cat-method { --cat: var(--c-method); }
-.cat-obj { --cat: var(--c-obj); } .cat-text { --cat: var(--c-text); }
+.cat-obj { --cat: var(--c-obj); } .cat-text { --cat: var(--c-text); } .cat-loop { --cat: var(--c-loop); }
 
 .explain { display: flex; flex-direction: column; gap: 10px; }
 .explain h3, .win h3 { font-family: var(--f-display); font-weight: 600; font-size: 18px; margin: 0; }
@@ -235,7 +236,7 @@ pre.code { margin: 0; padding: 14px 16px 18px 0; font-family: var(--f-code); fon
 <script>
 const CATS = {
   func: "Funktion", param: "Parameter", ret: "Return", cond: "Villkor",
-  arrow: "Arrow function", method: "Array-metod", obj: "Objekt", text: "Text & utskrift"
+  arrow: "Arrow function", method: "Array-metod", obj: "Objekt", text: "Text & utskrift", loop: "Loop"
 };
 
 const LEVELS = [
@@ -344,6 +345,75 @@ console.log(checkLogin("admin", "fel"));`,
       { t: 'console.log("Fel användarnamn eller lösenord");', cat: "text", why: "Texten skrivs ut inne i funktionen, men funktionen returnerar undefined. Anropet loggar då också undefined." }
     ],
     output: ["Inloggad!", "Fel användarnamn eller lösenord"]
+  }]
+},
+{
+  title: "for-loopar", lesson: "Lektion · Loopar",
+  intro: "En for-loop upprepar kod. Den har tre delar: en startpunkt (let i = 0), ett villkor som avgör hur länge loopen fortsätter (i < array.length) och en uppräkning efter varje varv (i++). Med array[i] når du elementet på plats i.",
+  puzzles: [
+  {
+    file: "kvitto.js",
+    goal: { text: "Räkna ut totalen på kvittot:", steps: [
+      "Starta räknaren `i` på 0.",
+      "Fortsätt så länge `i` är mindre än antalet priser.",
+      "Öka `i` med 1 efter varje varv.",
+      "Lägg till varje pris på `total`."
+    ] },
+    code: `const prices = [49, 25, 89, 35];
+let total = 0;
+
+for (⟦a⟧; ⟦b⟧; ⟦c⟧) {
+  ⟦d⟧
+}
+
+console.log(\`Totalt: \${total} kr\`);`,
+    slots: {
+      a: { piece: "let i = 0", cat: "loop", why: "Räknaren börjar på 0 eftersom första elementet i en array har index 0. Den deklareras med let eftersom värdet ska ändras." },
+      b: { piece: "i < prices.length", cat: "loop", why: "Villkoret testas före varje varv. prices.length är 4, så loopen körs för i = 0, 1, 2 och 3." },
+      c: { piece: "i++", cat: "loop", why: "i++ ökar räknaren med 1 efter varje varv. Utan den blir villkoret aldrig false och loopen tar aldrig slut." },
+      d: { piece: "total += prices[i];", cat: "loop", why: "prices[i] är priset på plats i. += lägger till det på total, så summan växer för varje varv." }
+    },
+    wrong: [
+      { t: "const i = 0", cat: "loop", why: "En const kan inte ändras. När i++ försöker öka värdet kraschar programmet." },
+      { t: "i <= prices.length", cat: "loop", why: "Med <= blir det ett varv för mycket. prices[4] finns inte, och undefined gör summan till NaN." },
+      { t: "total += i;", cat: "loop", why: "i är platsen i arrayen, inte priset. Summan blir 0 + 1 + 2 + 3 = 6 kr." }
+    ],
+    output: ["Totalt: 198 kr"]
+  },
+  {
+    file: "vader.js",
+    goal: { text: "Gå igenom veckans temperaturer:", steps: [
+      "Starta `highest` på den första temperaturen i arrayen.",
+      "Räkna hur många dagar som var varmare än 20 grader.",
+      "Spara temperaturen i `highest` när du hittar en som är högre."
+    ] },
+    code: `const temps = [12, 18, 25, 9, 30, 22];
+let warmDays = 0;
+let highest = ⟦a⟧;
+
+for (let i = 0; i < temps.length; i++) {
+  if (⟦b⟧) {
+    warmDays++;
+  }
+  if (temps[i] > highest) {
+    ⟦c⟧
+  }
+}
+
+console.log(\`Varma dagar: \${warmDays}\`);
+console.log(\`Högsta temperatur: \${highest}°C\`);`,
+    slots: {
+      a: { piece: "temps[0]", cat: "loop", why: "Startvärdet är den första temperaturen. Loopen jämför sedan varje dag mot den hittills högsta." },
+      b: { piece: "temps[i] > 20", cat: "cond", why: "temps[i] är temperaturen den dag loopen är på just nu. Är den över 20 räknas dagen som varm." },
+      c: { piece: "highest = temps[i];", cat: "loop", why: "När dagens temperatur är högre än det hittills högsta sparas den i highest." }
+    },
+    wrong: [
+      { t: "temps", cat: "loop", why: "temps är hela arrayen. highest ska vara ett tal, inte en lista." },
+      { t: "temps > 20", cat: "cond", why: "Då jämförs hela arrayen med 20, inte en enskild dag. Använd temps[i]." },
+      { t: "i > 20", cat: "cond", why: "i är platsen i arrayen (0–5), inte temperaturen. Villkoret blir aldrig true." },
+      { t: "temps[i] = highest;", cat: "loop", why: "Tilldelning går från höger till vänster. Här skrivs dagens temperatur över, istället för att highest uppdateras." }
+    ],
+    output: ["Varma dagar: 3", "Högsta temperatur: 30°C"]
   }]
 },
 {
@@ -608,7 +678,7 @@ console.log("Total speltid: " + ⟦e⟧);`,
 ];
 
 /* ---------- state ---------- */
-const KEY = "js1-pusslet-v1";
+const KEY = "js1-pusslet-v2";
 let progress = {};
 try { progress = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { progress = {}; }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(progress)); } catch (e) {} };
@@ -637,7 +707,7 @@ function loadPuzzle(L, P) {
 /* ---------- syntaxfärgning ---------- */
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 function hl(src) {
-  const re = /(\/\/[^\n]*)|("[^"\n]*"|'[^'\n]*'|`[^`\n]*`)|(=>|===|!==|\.\.\.|&&|\|\|)|\b(function|return|const|let|if|else|true|false|undefined)\b|(\b\d+(?:\.\d+)?\b)|(\b[a-zA-Z_]\w*(?=\())/g;
+  const re = /(\/\/[^\n]*)|("[^"\n]*"|'[^'\n]*'|`[^`\n]*`)|(=>|===|!==|\.\.\.|&&|\|\|)|\b(function|return|const|let|if|else|for|true|false|undefined)\b|(\b\d+(?:\.\d+)?\b)|(\b[a-zA-Z_]\w*(?=\())/g;
   let out = "", last = 0, m;
   while ((m = re.exec(src))) {
     out += esc(src.slice(last, m.index));
