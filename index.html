@@ -126,6 +126,9 @@ pre.code { margin: 0; padding: 14px 16px 18px 0; font-family: var(--f-code); fon
 .goal svg { width: 34px; height: 34px; flex: none; color: var(--accent); margin-top: 2px; }
 .goal .label { color: var(--accent); font-weight: 600; margin-bottom: 4px; }
 #goal { margin: 0; font-family: var(--f-display); font-weight: 600; font-size: clamp(19px, 2.4vw, 24px); line-height: 1.25; text-wrap: balance; }
+#goal ol { margin: 10px 0 0; padding-left: 1.4em; display: grid; gap: 6px; font-family: var(--f-body); font-weight: 500; font-size: 16px; line-height: 1.4; text-wrap: pretty; }
+#goal li::marker { color: var(--accent); font-weight: 700; }
+#goal code { font-family: var(--f-code); font-size: .88em; font-weight: 600; padding: 1px 5px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 14%, transparent); font-variant-ligatures: none; }
 .tray-card { position: relative; }
 .tray { display: flex; flex-wrap: wrap; gap: 8px; min-height: 48px; }
 .tray-empty { color: var(--muted); font-size: 13px; margin: 0; }
@@ -199,7 +202,7 @@ pre.code { margin: 0; padding: 14px 16px 18px 0; font-family: var(--f-code); fon
 
   <div class="board">
     <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
-      <div class="goal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg><div><p class="label">Ditt uppdrag</p><p id="goal"></p></div></div>
+      <div class="goal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg><div><p class="label">Ditt uppdrag</p><div id="goal"></div></div></div>
       <div class="editor" id="editor">
         <div class="tabs">
           <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -288,7 +291,11 @@ console.log(\`Att betala: \${total} kr\`);`,
   puzzles: [
   {
     file: "biljett.js",
-    goal: "Ge rätt biljettpris på bion: barn under 12 betalar 60 kr, pensionärer från 65 betalar 80 kr, övriga 120 kr.",
+    goal: { text: "Ge rätt biljettpris på bion:", steps: [
+      "Barn under 12 år betalar 60 kr.",
+      "Pensionärer från 65 år betalar 80 kr.",
+      "Alla andra betalar 120 kr."
+    ] },
     code: `function getTicketPrice(age) {
   if (⟦a⟧) {
     return 60;
@@ -345,7 +352,10 @@ console.log(checkLogin("admin", "fel"));`,
   puzzles: [
   {
     file: "matte.js",
-    goal: "Skriv om funktionerna som arrow functions: en som dubblar ett tal och en som kollar om ett tal är jämnt.",
+    goal: { text: "Gör klart två arrow functions:", steps: [
+      "`double`: dubblar ett tal, skriven på en rad utan {}.",
+      "`isEven`: kollar om ett tal är jämnt, skriven med {}."
+    ] },
     code: `// Samma sak som: function double(number) { return number * 2; }
 ⟦a⟧ double = ⟦b⟧ ⟦c⟧ number * 2;
 
@@ -370,7 +380,10 @@ console.log(isEven(7));`,
   },
   {
     file: "rabatt.js",
-    goal: "Medlemmar får 20 % rabatt. Räkna ut priset och visa det med \"kr\" efter.",
+    goal: { text: "Medlemmar får 20 % rabatt:", steps: [
+      "`getDiscountPrice`: räkna ut priset, med rabatt om kunden är medlem.",
+      "`formatPrice`: visa priset med \"kr\" efter, till exempel 160 kr."
+    ] },
     code: `const getDiscountPrice = ⟦a⟧ => {
   if (isMember) {
     ⟦b⟧
@@ -402,7 +415,12 @@ console.log(formatPrice(getDiscountPrice(200, true)));`,
   puzzles: [
   {
     file: "klasslista.js",
-    goal: "Välj rätt array-metod på varje rad: korta namn, versaler, första namnet på C och en hälsning till alla.",
+    goal: { text: "Välj rätt array-metod på varje rad med en lucka:", steps: [
+      "`shortNames`: bara namnen med högst 3 bokstäver.",
+      "`loudNames`: alla namn i versaler.",
+      "`firstC`: det första namnet som börjar på C.",
+      "Sista raden: skriv ut en hälsning till varje namn."
+    ] },
     code: `const names = ["Ali", "Bea", "Cornelia", "Dan", "Elsa"];
 
 const shortNames = names.⟦a⟧((name) => name.length <= 3);
@@ -429,7 +447,12 @@ names.⟦d⟧((name) => console.log(\`Hej \${name}!\`));`,
   },
   {
     file: "prov.js",
-    goal: "Ta fram provresultaten: godkända (minst 50), godkända med 5 bonuspoäng, om någon fick 100 och totalsumman.",
+    goal: { text: "Gör klart provresultaten. Varje rad med en lucka är en egen uppgift:", steps: [
+      "`passed`: välj ut resultaten som är godkända, alltså minst 50 poäng.",
+      "`withBonus`: lägg till 5 extra poäng på vart och ett av de godkända resultaten.",
+      "`hasPerfect`: ta reda på om någon fick 100 poäng.",
+      "`total`: räkna ut summan av alla resultat."
+    ] },
     code: `const scores = [45, 82, 67, 91, 38];
 
 const passed = scores.filter(⟦a⟧);
@@ -462,7 +485,12 @@ console.log(total);`,
   puzzles: [
   {
     file: "webbshop.js",
-    goal: "Räkna produkterna i lager, lista alla namn och skriv ut musens pris.",
+    goal: { text: "Gör klart webbshopen:", steps: [
+      "`available`: välj ut produkterna som finns i lager.",
+      "`productNames`: gör en lista med bara produkternas namn.",
+      "`mouse`: hitta produkten med id 3.",
+      "Sista raden: skriv ut musens pris."
+    ] },
     code: `const products = [
   { id: 1, name: "Hörlurar", price: 499, inStock: true },
   { id: 2, name: "Tangentbord", price: 899, inStock: false },
@@ -530,7 +558,13 @@ results.forEach((result) => console.log(⟦c⟧));`,
   puzzles: [
   {
     file: "spellista.js",
-    goal: "Skriv ut alla gillade låtar med speltid i minuter och visa den totala speltiden.",
+    goal: { text: "Gör klart spellistan:", steps: [
+      "`formatTime`: lägg till en nolla när sekunderna är under 10 (4:05, inte 4:5).",
+      "`likedSongs`: välj ut låtarna som är gillade.",
+      "`totalSeconds`: räkna ihop speltiden för de gillade låtarna.",
+      "`forEach`: skriv ut varje gillad låt med speltid i minuter.",
+      "Sista raden: skriv ut den totala speltiden i minuter."
+    ] },
     code: `const songs = [
   { title: "Midnatt", artist: "Nova", seconds: 214, liked: true },
   { title: "Solsken", artist: "Lumen", seconds: 187, liked: false },
@@ -713,7 +747,10 @@ function renderWin() {
 }
 
 function renderSide() {
-  $("goal").textContent = S.pz.goal;
+  const g = S.pz.goal;
+  const md = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+  $("goal").innerHTML = typeof g === "string" ? md(g)
+    : `${md(g.text)}<ol>${g.steps.map(s => `<li>${md(s)}</li>`).join("")}</ol>`;
   $("check").disabled = S.solved;
   $("hint").disabled = S.solved || S.hint;
   $("reveal").hidden = S.solved || S.fails < 3;
